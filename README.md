@@ -125,6 +125,40 @@ src/
 
 ---
 
+## 部署
+
+### 已上线：GitHub Pages
+
+**地址：https://star-lolay.github.io/web-resume2/**
+
+push 到 `main` 即自动构建部署，无需手动操作。工作流见 `.github/workflows/pages.yml`。
+
+GitHub Pages 项目站点部署在子路径 `/web-resume2/`，因此构建时会自动设置 `BASE=/web-resume2/`。
+这一项由工作流从仓库名推导，仓库改名不需要改文件。
+
+### 可选：Cloudflare Pages（免费套餐）
+
+纯静态站点，免费额度不限带宽。四种方式任选其一：
+
+| 方式 | 操作 | 适合 |
+|---|---|---|
+| GitHub Actions | 配好两个 Secret 后在 Actions 页运行 | 想保留自动部署 |
+| Git 集成 | Dashboard → Pages → Connect to Git | 最省事，推荐长期用 |
+| 一键命令 | `npm run deploy`（首次会开浏览器登录） | 本地快速发布 |
+| API Token | `CLOUDFLARE_API_TOKEN=xxx npm run deploy` | 无浏览器环境 |
+
+Cloudflare Pages 部署在**根域**，不需要设置 `BASE`。
+
+### 本地验证部署效果
+
+```bash
+# 模拟 GitHub Pages 的子路径构建
+BASE=/web-resume2/ npm run build
+# 产物拷到 dist 下的子目录再起静态服务器即可验证
+```
+
+---
+
 ## 内容说明（重要）
 
 `resume.data.js` 中的人物"林知远"及全部数字均为**示例设定**，用于展示页面结构与文案写法。上线前请替换为真实信息，并保持数字口径自洽（有基线、有终值）。
