@@ -140,12 +140,12 @@ GitHub Pages 项目站点部署在子路径 `/web-resume2/`，因此构建时会
 
 纯静态站点，免费额度不限带宽。四种方式任选其一：
 
-| 方式 | 操作 | 适合 |
+| 方式 | 操作 | 适用场景 |
 |---|---|---|
-| GitHub Actions | 配好两个 Secret 后在 Actions 页运行 | 想保留自动部署 |
-| Git 集成 | Dashboard → Pages → Connect to Git | 最省事，推荐长期用 |
+| Git 集成 | Dashboard → Pages → Connect to Git | 最省事，推荐长期使用 |
+| GitHub Actions | 配好两个 Secret 后在 Actions 页运行 | 想保留仓库内自动部署 |
 | 一键命令 | `npm run deploy`（首次会开浏览器登录） | 本地快速发布 |
-| API Token | `CLOUDFLARE_API_TOKEN=xxx npm run deploy` | 无浏览器环境 |
+| API Token | `CLOUDFLARE_API_TOKEN=xxx npm run deploy` | 无浏览器 / CI 环境 |
 
 Cloudflare Pages 部署在**根域**，不需要设置 `BASE`。
 
