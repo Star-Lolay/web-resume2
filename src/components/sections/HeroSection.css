@@ -1,0 +1,337 @@
+/* ============================================================================
+   HeroSection.css
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: clamp(56px, 9vh, 104px);
+  padding-top: calc(var(--nav-h) + clamp(72px, 14vh, 160px));
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ---------------------------------------------------------------- 背景 */
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+/* 兜底底色：不依赖任何动效，保证深色基底始终存在 */
+.hero__base {
+  position: absolute;
+  inset: 0;
+  /* 用主题令牌推导，亮色主题下自动变为浅底，避免"深蒙版压浅字" */
+  background:
+    radial-gradient(
+      80% 55% at 50% 4%,
+      color-mix(in oklab, var(--accent) 10%, var(--bg-elev)) 0%,
+      color-mix(in oklab, var(--accent) 4%, var(--bg)) 44%,
+      var(--bg) 80%
+    ),
+    var(--bg);
+}
+.hero__aurora {
+  position: absolute;
+  /* 亮色主题下不启用着色器叠加，避免混色发脏 */
+  opacity: 1;
+  inset: -10% -6% auto;
+  height: 104%;
+  will-change: transform;
+  opacity: 0.5;
+  /* 着色器只作为纹理叠加，不允许压过底色 */
+  mix-blend-mode: soft-light;
+}
+.hero__fallback {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(90% 62% at 50% 0%, color-mix(in oklab, var(--accent) 13%, transparent), transparent 68%),
+    radial-gradient(60% 44% at 82% 18%, color-mix(in oklab, var(--accent-2) 7%, transparent), transparent 62%),
+    linear-gradient(180deg, #101317 0%, var(--bg) 62%);
+}
+.hero__veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--bg) 34%, transparent) 0%,
+    transparent 26%,
+    color-mix(in oklab, var(--bg) 18%, transparent) 58%,
+    var(--bg) 94%
+  );
+}
+/* 细网格，提供"秩序感"，几乎零成本 */
+.hero__grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: radial-gradient(120% 90% at 50% 20%, black 10%, transparent 72%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 20%, black 10%, transparent 72%);
+}
+
+/* ---------------------------------------------------------------- 内容 */
+.hero__inner {
+  position: relative;
+  width: 100%;
+}
+
+.hero__topline {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  margin-bottom: clamp(24px, 4vh, 44px);
+  animation: heroIn 780ms var(--ease-out) both;
+}
+.hero__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  background: color-mix(in oklab, var(--bg-elev) 60%, transparent);
+  backdrop-filter: blur(6px);
+}
+.hero__loc,
+.hero__role {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.14em;
+  color: var(--text-mute);
+  text-transform: uppercase;
+}
+.hero__role {
+  padding-left: var(--sp-4);
+  border-left: 1px solid var(--line);
+}
+
+/* 大标题 */
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.025em;
+  margin-bottom: clamp(20px, 3.4vh, 36px);
+}
+.hero__title-line1 {
+  display: block;
+  font-size: var(--fs-hero);
+  color: var(--text);
+}
+.hero__title-line2 {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(12px, 2vw, 28px);
+  flex-wrap: wrap;
+  font-size: calc(var(--fs-hero) * 0.52);
+  color: var(--text-dim);
+  margin-top: 0.1em;
+}
+.hero__title-en {
+  font-style: italic;
+  font-size: 0.3em;
+  letter-spacing: 0.16em;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  align-self: flex-end;
+  margin-bottom: 0.5em;
+}
+
+/* 定位一句话 */
+.hero__tagline {
+  max-width: 30ch;
+  font-size: clamp(1.06rem, 1.65vw, 1.34rem);
+  line-height: 1.62;
+  color: var(--text);
+  text-wrap: pretty;
+  animation: heroIn 880ms 260ms var(--ease-out) both;
+}
+.hero__subline {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--text-mute);
+  letter-spacing: 0.01em;
+  animation: heroIn 880ms 380ms var(--ease-out) both;
+}
+
+/* 行动按钮 */
+.hero__actions {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-top: clamp(28px, 4.6vh, 48px);
+  animation: heroIn 900ms 480ms var(--ease-out) both;
+}
+.hero__cta svg {
+  transition: transform var(--dur-mid) var(--ease-out);
+}
+.hero__cta:hover svg {
+  transform: translateX(3px);
+}
+
+/* 滚动提示 */
+.hero__scroll {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(30px, 5vh, 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: opacity var(--dur-mid) var(--ease-out);
+}
+.hero__scroll span {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--text-mute);
+  writing-mode: vertical-rl;
+}
+.hero__scroll i {
+  display: block;
+  width: 1px;
+  height: 46px;
+  background: linear-gradient(to bottom, var(--line-strong), transparent);
+  position: relative;
+  overflow: hidden;
+}
+.hero__scroll i::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 14px;
+  background: var(--accent);
+  animation: scrollDot 2.4s var(--ease-in-out) infinite;
+}
+
+.hero__fadeout {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 130px;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------- 动画 */
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes scrollDot {
+  0% {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(46px);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------- 响应式 */
+@media (max-width: 900px) {
+  .hero {
+    min-height: 88svh;
+    justify-content: center;
+    padding-top: calc(var(--nav-h) + 56px);
+    padding-bottom: clamp(40px, 6vh, 64px);
+  }
+  .hero__tagline {
+    max-width: 36ch;
+    font-size: 1.06rem;
+  }
+  .hero__scroll {
+    display: none;
+  }
+  .hero__title-line2 {
+    font-size: calc(var(--fs-hero) * 0.44);
+  }
+}
+
+@media (max-width: 560px) {
+  .hero {
+    min-height: 86svh;
+    padding-top: calc(var(--nav-h) + 40px);
+  }
+  .hero__topline {
+    gap: var(--sp-3);
+  }
+  .hero__role {
+    display: none;
+  }
+  .hero__title-line2 {
+    font-size: calc(var(--fs-hero) * 0.4);
+    gap: 8px;
+  }
+  .hero__title-en {
+    display: none;
+  }
+  .hero__actions {
+    width: 100%;
+  }
+  .hero__cta {
+    flex: 1;
+    justify-content: center;
+  }
+  .hero__grid {
+    background-size: 64px 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__topline,
+  .hero__tagline,
+  .hero__subline,
+  .hero__actions {
+    animation: none;
+  }
+  .hero__scroll i::after {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- 亮色主题适配 */
+html[data-theme='paleAsh'] .hero__aurora {
+  display: none;               /* 着色器为深色设计，亮色下直接不渲染 */
+}
+html[data-theme='paleAsh'] .hero__grid {
+  opacity: 0.8;
+}
+html[data-theme='paleAsh'] .hero__veil {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--bg) 22%, transparent) 0%,
+    transparent 30%,
+    color-mix(in oklab, var(--bg) 10%, transparent) 60%,
+    var(--bg) 96%
+  );
+}
+html[data-theme='paleAsh'] .hero__status {
+  background: color-mix(in oklab, var(--bg) 72%, transparent);
+}
+html[data-theme='paleAsh'] .hero__fadeout {
+  background: linear-gradient(to bottom, transparent, var(--bg));
+}

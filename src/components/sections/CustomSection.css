@@ -1,0 +1,135 @@
+/* ============================================================================
+   CustomSection.css —— 三种自定义模块
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- 自由文本 */
+.custom-text {
+  margin: 0;
+  border-top: 1px solid var(--line);
+  max-width: 900px;
+}
+.custom-text__row {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: var(--sp-5);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.custom-text dt {
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+.custom-text dd {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.72;
+  color: var(--text-dim);
+}
+.custom-text__line {
+  display: block;
+  text-wrap: pretty;
+}
+.custom-text__line + .custom-text__line {
+  margin-top: 4px;
+}
+
+/* ---------------------------------------------------------------- 图文卡片 */
+.custom-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-4);
+}
+.custom-gallery__item {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-elev);
+  overflow: hidden;
+  transition: border-color var(--dur-mid) var(--ease-out), transform var(--dur-mid) var(--ease-out);
+}
+.custom-gallery__item:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+.custom-gallery__media {
+  aspect-ratio: 4 / 3;
+  background: var(--bg-elev-2);
+}
+.custom-gallery__ph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-mute);
+  font-size: var(--fs-micro);
+  border-bottom: 1px dashed var(--line);
+}
+.custom-gallery__ph i {
+  font-style: normal;
+  font-size: 9px;
+  opacity: 0.7;
+}
+.custom-gallery figcaption {
+  padding: 14px 16px 16px;
+}
+.custom-gallery h4 {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+.custom-gallery p {
+  font-size: var(--fs-sm);
+  line-height: 1.66;
+  color: var(--text-dim);
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------- 链接集合 */
+.custom-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.custom-links a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 16px;
+  background: var(--bg-elev);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.custom-links a:hover {
+  background: var(--bg-elev-2);
+}
+.custom-links__name {
+  font-size: var(--fs-sm);
+  color: var(--text);
+  flex: none;
+}
+.custom-links__desc {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: auto;
+}
+.custom-links svg {
+  color: var(--text-mute);
+  flex: none;
+}
+
+@media (max-width: 640px) {
+  .custom-text__row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}

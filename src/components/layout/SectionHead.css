@@ -1,0 +1,58 @@
+/* ============================================================================
+   SectionHead.css —— 模块标题系统
+   ========================================================================== */
+
+.section-head {
+  margin-bottom: clamp(36px, 5.5vh, 64px);
+  max-width: 760px;
+}
+.section-head--center {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.section-head__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+}
+.section-head--center .section-head__top {
+  justify-content: center;
+}
+
+.section-head__meta {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  color: var(--text-mute);
+}
+
+.section-head__title {
+  font-size: var(--fs-h2);
+  color: var(--text);
+  letter-spacing: -0.022em;
+  margin-bottom: var(--sp-4);
+}
+
+.section-head__kicker {
+  font-size: var(--fs-lead);
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 54ch;
+  text-wrap: pretty;
+}
+.section-head--center .section-head__kicker {
+  margin-inline: auto;
+}
+
+@media (max-width: 640px) {
+  .section-head__top {
+    margin-bottom: var(--sp-3);
+  }
+  .section-head__kicker {
+    font-size: 0.9688rem;
+  }
+}

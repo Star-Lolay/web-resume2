@@ -1,0 +1,229 @@
+/* ============================================================================
+   ProfileSection.css
+   ========================================================================== */
+
+.profile__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: start;
+}
+
+/* ---------------------------------------------------------------- 证件照 */
+.profile__portrait {
+  margin: 0;
+  position: sticky;
+  top: calc(var(--nav-h) + 28px);
+}
+.profile__portrait-frame {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  box-shadow: var(--shadow-3);
+}
+.profile__portrait-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 900ms var(--ease-out);
+}
+.profile__portrait:hover .profile__portrait-frame img {
+  transform: scale(1.02);
+}
+.profile__portrait-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.34), transparent 46%);
+  pointer-events: none;
+}
+
+.profile__portrait-cap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.profile__name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+}
+.profile__role {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  color: var(--text-mute);
+}
+
+/* ---------------------------------------------------------------- 简介 */
+.profile__body {
+  padding-top: var(--sp-1);
+}
+.profile__intro {
+  font-size: var(--fs-lead);
+  line-height: 1.72;
+  color: var(--text);
+  text-wrap: pretty;
+  margin-bottom: var(--sp-4);
+}
+.profile__intro2 {
+  font-size: var(--fs-body);
+  line-height: 1.75;
+  color: var(--text-dim);
+  padding-left: var(--sp-4);
+  border-left: 1px solid var(--accent-line);
+  margin-bottom: var(--sp-6);
+  text-wrap: pretty;
+}
+
+/* 信息字段：两列网格 */
+.profile__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.profile__field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 15px;
+  background: var(--bg-elev);
+  min-width: 0;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.profile__field:hover {
+  background: var(--bg-elev-2);
+}
+.profile__field-icon {
+  display: grid;
+  place-items: center;
+  color: var(--text-mute);
+  flex: none;
+}
+.profile__field-label {
+  font-size: var(--fs-micro);
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+  flex: none;
+  white-space: nowrap;
+}
+.profile__field-value {
+  font-size: var(--fs-sm);
+  color: var(--text);
+  margin-left: auto;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.profile__field-value.is-link {
+  position: relative;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.profile__field-value.is-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: var(--accent-line);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-mid) var(--ease-out);
+}
+.profile__field-value.is-link:hover {
+  color: var(--accent);
+}
+.profile__field-value.is-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ---------------------------------------------------------------- 指标卡 */
+.profile__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin-top: clamp(36px, 5vh, 56px);
+}
+.metric-card {
+  padding: 22px 20px 20px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: transform var(--dur-mid) var(--ease-out), border-color var(--dur-mid) var(--ease-out);
+}
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+.metric-card__value {
+  font-size: clamp(1.8rem, 2.9vw, 2.35rem);
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.metric-card__value span {
+  font-weight: 500;
+}
+.metric-card__label {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.metric-card__note {
+  margin-top: 4px;
+  font-size: var(--fs-micro);
+  color: var(--text-mute);
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------------------------------------------- 响应式 */
+@media (max-width: 900px) {
+  .profile__grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-6);
+  }
+  .profile__portrait {
+    position: static;
+    max-width: 420px;
+  }
+  .profile__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .profile__fields {
+    grid-template-columns: 1fr;
+  }
+  .profile__field-value {
+    white-space: normal;
+    text-align: right;
+  }
+  .metric-card {
+    min-height: 118px;
+    padding: 18px 16px 16px;
+  }
+  .profile__portrait-cap {
+    margin-top: var(--sp-3);
+  }
+}

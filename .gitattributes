@@ -1,0 +1,12 @@
+# 统一换行符：仓库内一律 LF，避免 Windows 提交后文件整体变更
+* text=auto eol=lf
+
+# 明确二进制类型，防止被当作文本处理
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

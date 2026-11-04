@@ -1,0 +1,113 @@
+/* ============================================================================
+   tokens.css —— 设计令牌（改这里能改全站观感）
+   ----------------------------------------------------------------------------
+   主题切换：ResumeProvider 会把 theme 写入 <html data-theme="...">，
+   并通过内联 style 覆盖 --bg / --bg-elev / --accent / --accent-2 四个值。
+   其余令牌（文字层级、线、圆角、阴影、间距）在此固定，保证一致性。
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------- 颜色 */
+  --bg: #0b0c0e;
+  --bg-elev: #121417;
+  --bg-elev-2: #191c20;
+  --bg-elev-3: #22262b;
+
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+
+  --text: #ecedef;
+  --text-dim: #A8AEB5;
+  --text-mute: #7C838A;
+
+  --accent: #b8c4a8;
+  --accent-2: #c9a227;
+  /* 强调色的可用变体：文字用、底用 */
+  --accent-ink: color-mix(in oklab, var(--accent) 82%, black);
+  --accent-soft: color-mix(in oklab, var(--accent) 14%, transparent);
+  --accent-line: color-mix(in oklab, var(--accent) 32%, transparent);
+
+  /* ---------------------------------------------------------------- 字体 */
+  --font-display: 'Instrument Serif', 'Songti SC', 'Noto Serif SC', serif;
+  --font-sans: 'Inter Tight', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+
+  /* ---------------------------------------------------------------- 字号（流体） */
+  --fs-hero: clamp(3.2rem, 8.4vw, 7.6rem);
+  --fs-h2: clamp(2rem, 4vw, 3.25rem);
+  --fs-h3: clamp(1.25rem, 1.8vw, 1.6rem);
+  --fs-lead: clamp(1.0625rem, 1.35vw, 1.25rem);
+  --fs-body: 0.9688rem;
+  --fs-sm: 0.8438rem;
+  --fs-xs: 0.75rem;
+  --fs-micro: 0.6875rem;
+
+  /* ---------------------------------------------------------------- 间距（8pt 基准） */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+  --sp-9: 96px;
+  --sp-10: 132px;
+
+  /* ---------------------------------------------------------------- 圆角 */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* ---------------------------------------------------------------- 阴影 */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.32);
+  --shadow-3: 0 12px 40px rgba(0, 0, 0, 0.42);
+  --shadow-4: 0 24px 80px rgba(0, 0, 0, 0.52);
+
+  /* ---------------------------------------------------------------- 动效 */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur-mid: 320ms;
+  --dur-slow: 620ms;
+
+  /* ---------------------------------------------------------------- 布局 */
+  --container: 1200px;
+  --prose: 68ch;
+  --gutter: clamp(20px, 5vw, 64px);
+  --nav-h: 64px;
+
+  /* ---------------------------------------------------------------- 层级 */
+  --z-bg: 0;
+  --z-content: 1;
+  --z-nav: 50;
+  --z-editor: 80;
+  --z-modal: 100;
+}
+
+/* 亮色主题：由 JS 写入 data-theme="paleAsh" 时覆盖 */
+html[data-theme='paleAsh'] {
+  --line: rgba(0, 0, 0, 0.1);
+  --line-strong: rgba(0, 0, 0, 0.18);
+  --text: #1a1c1e;
+  --text-dim: #55595e;
+  --text-mute: #85898e;
+  --bg-elev-2: #efefec;
+  --bg-elev-3: #e6e6e2;
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-3: 0 12px 40px rgba(0, 0, 0, 0.1);
+  --shadow-4: 0 24px 80px rgba(0, 0, 0, 0.12);
+}
+
+/* 减弱动效：尊重系统偏好，也供"动效强度=0"时使用 */
+html[data-motion='off'] *,
+html[data-motion='off'] *::before,
+html[data-motion='off'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}

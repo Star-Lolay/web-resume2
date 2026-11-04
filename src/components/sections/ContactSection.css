@@ -1,0 +1,220 @@
+/* ============================================================================
+   ContactSection.css —— 收尾整屏
+   ========================================================================== */
+
+.contact {
+  position: relative;
+  padding-top: clamp(88px, 13vh, 148px);
+  padding-bottom: clamp(36px, 5vh, 56px);
+  border-top: 1px solid var(--line);
+  background: radial-gradient(
+    90% 70% at 50% 110%,
+    color-mix(in oklab, var(--accent) 9%, transparent),
+    transparent 66%
+  );
+}
+
+.contact__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-bottom: clamp(28px, 4vh, 44px);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+}
+.contact__head-meta {
+  font-size: var(--fs-micro);
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+}
+
+.contact__title {
+  font-size: clamp(2.1rem, 4.6vw, 3.9rem);
+  line-height: 1.06;
+  letter-spacing: -0.028em;
+  color: var(--text);
+  margin-bottom: var(--sp-5);
+  max-width: 20ch;
+}
+.contact__title span {
+  display: block;
+}
+.contact__title span.is-dim {
+  color: var(--text-dim);
+}
+
+.contact__body {
+  font-size: var(--fs-lead);
+  line-height: 1.68;
+  color: var(--text-dim);
+  max-width: 52ch;
+  text-wrap: pretty;
+  margin-bottom: clamp(30px, 4.6vh, 48px);
+}
+
+/* ---------------------------------------------------------------- 主行动 */
+.contact__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-6);
+}
+
+.contact__mail {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px 14px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--bg-elev) 72%, transparent);
+  transition: border-color var(--dur-mid) var(--ease-out),
+    background-color var(--dur-mid) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.contact__mail:hover {
+  border-color: var(--accent);
+  background: var(--bg-elev-2);
+}
+.contact__mail:active {
+  transform: translateY(1px);
+}
+.contact__mail-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  flex: none;
+}
+.contact__mail-text {
+  font-size: var(--fs-body);
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+.contact__mail-arrow {
+  color: var(--text-mute);
+  transition: transform var(--dur-mid) var(--ease-out), color var(--dur-mid) var(--ease-out);
+}
+.contact__mail:hover .contact__mail-arrow {
+  transform: translate(2px, -2px);
+  color: var(--accent);
+}
+
+.contact__phone {
+  font-size: var(--fs-body);
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--line);
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.contact__phone:hover {
+  color: var(--text);
+  border-color: var(--accent-line);
+}
+
+/* ---------------------------------------------------------------- 外链 */
+.contact__links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  margin-bottom: var(--sp-6);
+}
+.contact__links a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg-elev);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.contact__links a:hover {
+  background: var(--bg-elev-2);
+}
+.contact__link-label {
+  font-size: var(--fs-sm);
+  color: var(--text);
+  flex: none;
+}
+.contact__link-value {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-left: auto;
+}
+.contact__links svg {
+  color: var(--text-mute);
+  flex: none;
+}
+
+.contact__note {
+  font-size: var(--fs-xs);
+  color: var(--text-mute);
+  line-height: 1.7;
+  max-width: 60ch;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line);
+}
+
+/* ---------------------------------------------------------------- 页脚 */
+.contact__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  margin-top: clamp(48px, 7vh, 80px);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-micro);
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+}
+.contact__footer-mid {
+  opacity: 0.7;
+}
+.contact__totop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.04em;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.contact__totop:hover {
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------------- 响应式 */
+@media (max-width: 700px) {
+  .contact__actions {
+    gap: var(--sp-3);
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .contact__mail {
+    justify-content: flex-start;
+  }
+  .contact__mail-text {
+    font-size: var(--fs-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .contact__phone {
+    align-self: flex-start;
+  }
+  .contact__footer-mid {
+    display: none;
+  }
+}
