@@ -1,0 +1,20 @@
+# Cloudflare Pages 部署配置
+#
+# 用法（命令行）：
+#   npm run build
+#   npx wrangler pages deploy dist --project-name=web-resume2
+#
+# 用法（推荐，Git 集成自动部署）：
+#   Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git
+#   选 Star-Lolay/web-resume2，构建设置：
+#     Framework preset      : Vite
+#     Build command         : npm run build
+#     Build output directory: dist
+#     Node version          : 20 或以上
+
+name = "web-resume2"
+compatibility_date = "2025-01-01"
+
+# Pages 项目为纯静态站点，不需要 Worker 运行时绑定。
+# 若将来需要 Pages Functions，在顶层目录新建 functions/ 即可，此文件无需改动。
+pages_build_output_dir = "dist"

@@ -1,0 +1,68 @@
+# ============================================================================
+#  GitHub Pages 自动部署
+# ============================================================================
+#  触发：push 到 main，或在 Actions 页面手动运行
+#
+#  为什么需要 BASE：
+#    GitHub Pages 项目站点部署在子路径 https://<用户>.github.io/<仓库名>/
+#    构建时必须让 Vite 把资源前缀设为 /<仓库名>/，否则 CSS/JS/图片全部 404。
+#    这里用 ${GITHUB_REPOSITORY#*/} 自动取出仓库名，改名也不用改文件。
+#
+#  部署地址：https://star-lolay.github.io/web-resume2/
+# ============================================================================
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Pages 部署需要的最小权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只允许一个部署，避免并发写坏产物
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        # 子路径基址 = /<仓库名>/，从 GITHUB_REPOSITORY 自动推导
+        run: BASE="/${GITHUB_REPOSITORY#*/}/" npm run build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
