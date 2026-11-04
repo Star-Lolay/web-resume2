@@ -1,0 +1,53 @@
+# ============================================================================
+#  Cloudflare Pages 自动部署
+# ============================================================================
+#  前置：在 GitHub 仓库 Settings → Secrets and variables → Actions 添加
+#    CLOUDFLARE_API_TOKEN   —— Cloudflare 令牌，权限 Account → Cloudflare Pages: Edit
+#    CLOUDFLARE_ACCOUNT_ID  —— Cloudflare 账号 ID
+#
+#  触发：push 到 main，或在 Actions 页面手动运行
+#  说明：Cloudflare Pages 免费套餐对静态站点不限带宽、每月 500 次构建。
+#        本站为根域部署，因此不需要设置 BASE（保持默认 '/'）。
+# ============================================================================
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: cloudflare-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # 未配置 Secret 时直接跳过，避免出现红色失败状态
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.CF_PAGES_ENABLED == 'true' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=web-resume2 --branch=main

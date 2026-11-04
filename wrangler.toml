@@ -1,16 +1,33 @@
-# Cloudflare Pages 部署配置
+# ============================================================================
+#  Cloudflare 部署配置（免费额度即可）
+# ============================================================================
+#  说明：
+#    Cloudflare Pages 的免费套餐对纯静态站点足够：不限带宽、每月 500 次构建。
+#    本站是纯静态 SPA，不需要数据库 / KV / R2 等任何付费资源。
 #
-# 用法（命令行）：
-#   npm run build
-#   npx wrangler pages deploy dist --project-name=web-resume2
+#  ── 方式一：一键命令（本机已装 wrangler） ──────────────────────────────
+#    npm run deploy
+#    首次运行会打开浏览器要求登录 Cloudflare 账号并授权。
 #
-# 用法（推荐，Git 集成自动部署）：
-#   Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git
-#   选 Star-Lolay/web-resume2，构建设置：
-#     Framework preset      : Vite
-#     Build command         : npm run build
-#     Build output directory: dist
-#     Node version          : 20 或以上
+#  ── 方式二：API Token（无浏览器 / CI 环境） ────────────────────────────
+#    CLOUDFLARE_API_TOKEN=你的令牌 npm run deploy
+#    令牌权限：Account → Cloudflare Pages: Edit
+#
+#  ── 方式三：Git 集成自动部署（最省事，推荐长期使用） ──────────────────
+#    Cloudflare Dashboard → Workers & Pages → Create → Pages → Connect to Git
+#    选择仓库 Star-Lolay/web-resume2，构建设置：
+#      Framework preset       : Vite
+#      Build command          : npm run build
+#      Build output directory : dist
+#      Node version           : 20
+#    之后每次 push 都会自动重新部署。
+#
+#  ── 方式四：GitHub Actions（仓库已配好 .github/workflows/cloudflare.yml）──
+#    在 GitHub 仓库 Settings → Secrets 添加两个 Secret：
+#      CLOUDFLARE_API_TOKEN   —— 令牌（权限同上）
+#      CLOUDFLARE_ACCOUNT_ID  —— 账号 ID（Dashboard 右侧栏可见）
+#    再到 Actions 页面运行 "Deploy to Cloudflare Pages" 即可。
+# ============================================================================
 
 name = "web-resume2"
 compatibility_date = "2025-01-01"
