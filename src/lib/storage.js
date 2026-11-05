@@ -12,7 +12,28 @@
 
 const KEY_DATA = 'web-resume2:data';
 const KEY_UI = 'web-resume2:ui';
+const KEY_EFFECTS = 'web-resume2:effects';
 const SCHEMA_VERSION = 1;
+
+/**
+ * 导出成品注入的启动数据。
+ * 导出时会在 HTML 里写入 window.__RESUME_BOOT__，这里统一取出来。
+ * 普通站点打开时它是 undefined，所有逻辑走 localStorage + 默认值。
+ */
+export function getBoot() {
+  try {
+    const b = typeof window !== 'undefined' ? window.__RESUME_BOOT__ : null;
+    return b && typeof b === 'object' ? b : null;
+  } catch {
+    return null;
+  }
+}
+
+/** 是否为导出成品（成品只读，不写 localStorage，也不显示编辑器） */
+export function isStandalone() {
+  const b = getBoot();
+  return !!(b && b.standalone);
+}
 
 /** 深合并：override 覆盖 base，数组整体替换（不逐项合并，避免错位） */
 export function mergeDeep(base, override) {
@@ -31,6 +52,13 @@ export function mergeDeep(base, override) {
 }
 
 export function loadData(fallback) {
+  /* 导出成品：内容来自注入的 boot，完全忽略 localStorage。
+     否则用户在别处编辑过的旧数据会覆盖掉创作者打包的内容。 */
+  const boot = getBoot();
+  if (boot && boot.data && typeof boot.data === 'object') {
+    return { data: mergeDeep(fallback, boot.data), isCustom: true };
+  }
+
   try {
     const raw = localStorage.getItem(KEY_DATA);
     if (!raw) return { data: fallback, isCustom: false };
@@ -46,8 +74,10 @@ export function loadData(fallback) {
 /**
  * 保存数据。返回 { ok, error }
  * 配额溢出时返回明确错误，由 UI 提示用户导出 JSON 后清理。
+ * 导出成品不写盘 —— 成品是只读交付物，用户在里面改动不应该污染本地。
  */
 export function saveData(data) {
+  if (isStandalone()) return { ok: true };
   try {
     localStorage.setItem(KEY_DATA, JSON.stringify({ v: SCHEMA_VERSION, at: Date.now(), data }));
     return { ok: true };
@@ -72,8 +102,24 @@ export function clearData() {
   }
 }
 
-/** UI 偏好（主题 / 动效强度）单独存，避免与内容混在一起 */
+/** UI 偏好（主题 / 动效强度 / 模块顺序）单独存，避免与内容混在一起 */
 export function loadUi(fallback) {
+  /* 导出成品：主题、强度、模块顺序都来自 boot，保证成品与创作者调好的完全一致 */
+  const boot = getBoot();
+  if (boot) {
+    const fromBoot = {
+      theme: boot.theme,
+      intensity: boot.intensity,
+      order: boot.order,
+      hidden: boot.hidden,
+    };
+    const cleaned = {};
+    Object.keys(fromBoot).forEach((k) => {
+      if (fromBoot[k] !== undefined && fromBoot[k] !== null) cleaned[k] = fromBoot[k];
+    });
+    return mergeDeep(fallback, cleaned);
+  }
+
   try {
     const raw = localStorage.getItem(KEY_UI);
     if (!raw) return fallback;
@@ -84,6 +130,7 @@ export function loadUi(fallback) {
 }
 
 export function saveUi(ui) {
+  if (isStandalone()) return;
   try {
     localStorage.setItem(KEY_UI, JSON.stringify(ui));
   } catch {

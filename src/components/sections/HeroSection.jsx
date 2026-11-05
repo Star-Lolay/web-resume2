@@ -2,23 +2,23 @@
  * ============================================================================
  *  HeroSection —— 首屏（锁定首位，不可移除）
  * ============================================================================
- *  结构：Aurora 背景 → 大标题 → 定位一句话 → 行动按钮 → 底部状态条
- *  动效：Aurora（WebGL，可降级）+ 逐字入场 + 指标条形入场
+ *  结构：压暗层 → 大标题 → 定位一句话 → 行动按钮 → 底部状态条
+ *  动效：
+ *    - 背景 GridScan 由 SceneBackground 提供（固定层，随滚动淡出）
+ *    - 环形图片 OrbitImages 由 SceneBackground 提供（延迟 500ms）
+ *    - 本组件只负责「压暗护栏 + 逐字入场 + 滚动视差」
  * ============================================================================
  */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useResume } from '../../lib/resumeStore.jsx';
-import { useRichMotion, usePageVisible } from '../../hooks/index.js';
+import { useRichMotion } from '../../hooks/index.js';
 import SplitTextLite from '../effects/SplitTextLite.jsx';
-import Aurora from '../reactbits/Aurora.jsx';
 import './HeroSection.css';
 
 export default function HeroSection() {
   const { data, config, intensity } = useResume();
   const { person, hero } = data;
   const richMotion = useRichMotion(intensity);
-  const pageVisible = usePageVisible();
-  const sectionRef = useRef(null);
   const [scrolled, setScrolled] = useState(0);
 
   // 滚动视差（只做 transform，不触发重排）
@@ -41,43 +41,24 @@ export default function HeroSection() {
   const parallax = richMotion ? scrolled * 0.16 : 0;
   const fade = richMotion ? Math.max(0, 1 - scrolled / (window.innerHeight * 0.78)) : 1;
 
-  const showAurora = config.motion.heroAurora && intensity > 0.25;
-
   return (
-    <section className="hero" id="top" ref={sectionRef} data-screen-label="01 Hero">
-      {/* ---------------------------------------------------------- 背景层 */}
+    <section className="hero" id="top" data-screen-label="01 Hero">
+      {/* ---------------------------------------------------------- 压暗护栏
+          不画背景（由 SceneBackground 的 GridScan 提供），只保证文字可读 */}
       <div className="hero__bg" aria-hidden="true">
-        {/* 兜底底色：任何情况下首屏都必须是深色，文字才可读 */}
         <div className="hero__base" />
-        {showAurora ? (
-          <div className="hero__aurora" style={{ transform: `translate3d(0,${parallax * 0.5}px,0)` }}>
-            <Aurora
-              colorStops={['#1E2530', '#7E8C74', '#0E1216']}
-              amplitude={0.55}
-              blend={0.7}
-              speed={0.34}
-              height={0.5}
-              scale={1}
-              glow={0.16}
-              brightness={0.42}
-              layers={1}
-              direction="top"
-              mouseInteraction={richMotion}
-              intro
-              opacity={0.44}
-              paused={!pageVisible}
-              dpr={1.25}
-            />
-          </div>
-        ) : (
-          <div className="hero__fallback" />
-        )}
         <div className="hero__veil" />
         <div className="hero__grid" />
       </div>
 
       {/* ---------------------------------------------------------- 内容层 */}
-      <div className="hero__inner container" style={{ opacity: fade }}>
+      <div
+        className="hero__inner container"
+        style={{
+          opacity: fade,
+          transform: parallax ? `translate3d(0,${parallax * 0.24}px,0)` : undefined,
+        }}
+      >
         {/* 状态标签 */}
         <div className="hero__topline">
           <span className="hero__status">

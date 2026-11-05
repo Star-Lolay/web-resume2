@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/make-standalone.mjs",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler pages deploy dist --project-name=web-resume2 --commit-dirty=true"
   },
   "dependencies": {
+    "ogl": "^1.0.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

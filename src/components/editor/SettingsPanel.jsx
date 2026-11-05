@@ -1,16 +1,29 @@
 /**
  * ============================================================================
- *  SettingsPanel —— 外观设置（主题 / 动效强度）
+ *  SettingsPanel —— 外观设置（主题 / 动效强度 / 动效配色 / 导出）
  * ============================================================================
  *  与"内容编辑"分开：这里调的是站点的表现层，不影响文案。
  * ============================================================================
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { useResume } from '../../lib/resumeStore.jsx';
+import { EFFECT_COLOR_FIELDS, EFFECT_TOGGLES, getByPath } from '../../lib/effectsStore.js';
+import ExportDialog from './ExportDialog.jsx';
 import Icon from '../ui/Icon.jsx';
 
 export default function SettingsPanel({ open, onClose }) {
-  const { theme, setTheme, intensity, setIntensity, themes, config } = useResume();
+  const {
+    theme,
+    setTheme,
+    intensity,
+    setIntensity,
+    themes,
+    config,
+    effects,
+    setEffect,
+    resetEffects,
+  } = useResume();
+  const [exportOpen, setExportOpen] = useState(false);
 
   return (
     <>
@@ -74,6 +87,94 @@ export default function SettingsPanel({ open, onClose }) {
           </section>
 
           <section className="sheet__group">
+            <h4>动效配色</h4>
+            <p className="sheet__hint">
+              版式与动效参数保持不变，只换颜色。改动实时生效并自动保存。
+            </p>
+
+            {EFFECT_COLOR_FIELDS.map((f) => {
+              const value = getByPath(effects, f.path);
+              return (
+                <div className="fxrow" key={f.path}>
+                  <div className="fxrow__meta">
+                    <span className="fxrow__label">{f.label}</span>
+                    <span className="fxrow__hint">{f.hint}</span>
+                  </div>
+
+                  {f.type === 'color' ? (
+                    <label className="fxrow__color" title="点击选色">
+                      <input
+                        type="color"
+                        value={value || f.default}
+                        onChange={(e) => setEffect(f.path, e.target.value)}
+                      />
+                      <span className="fxrow__hex num">{value || f.default}</span>
+                    </label>
+                  ) : (
+                    /* colorList：渐变色数组，逐项一个取色器 */
+                    <div className="fxrow__list">
+                      {(value || f.default).map((c, i) => (
+                        <label className="fxrow__dot" key={`${f.path}-${i}`} title={`第 ${i + 1} 个渐变色`}>
+                          <input
+                            type="color"
+                            value={c}
+                            onChange={(e) => {
+                              const next = [...(value || f.default)];
+                              next[i] = e.target.value;
+                              setEffect(f.path, next);
+                            }}
+                          />
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            <button className="btn btn--ghost btn--sm btn--full fxreset" onClick={resetEffects}>
+              恢复动效默认配色
+            </button>
+          </section>
+
+          <section className="sheet__group">
+            <h4>动效开关</h4>
+            <p className="sheet__hint">关掉某一段动效，页面会自动退回到静态渐变背景。</p>
+            <div className="fxtoggles">
+              {EFFECT_TOGGLES.map((t) => {
+                const on = getByPath(effects, t.path);
+                return (
+                  <label className="fxtoggle" key={t.path}>
+                    <input
+                      type="checkbox"
+                      checked={!!on}
+                      onChange={(e) => setEffect(t.path, e.target.checked)}
+                    />
+                    <span className="fxtoggle__track" aria-hidden="true">
+                      <span className="fxtoggle__knob" />
+                    </span>
+                    <span className="fxtoggle__text">
+                      <span className="fxtoggle__label">{t.label}</span>
+                      <span className="fxtoggle__hint">{t.hint}</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="sheet__group">
+            <h4>导出</h4>
+            <p className="sheet__hint">
+              把「当前内容 + 当前配色 + 当前动效」打包成一个独立的 HTML 文件。
+              双击即可打开，不需要服务器，也可以直接发给别人或自己留档。
+            </p>
+            <button className="btn btn--primary btn--sm btn--full" onClick={() => setExportOpen(true)}>
+              导出为单文件网页
+            </button>
+          </section>
+
+          <section className="sheet__group">
             <h4>性能说明</h4>
             <ul className="sheet__list">
               <li>首屏背景为 WebGL 着色器，页面切换至后台时自动暂停。</li>
@@ -100,6 +201,8 @@ export default function SettingsPanel({ open, onClose }) {
           )}
         </div>
       </aside>
+
+      <ExportDialog open={exportOpen} onClose={() => setExportOpen(false)} />
     </>
   );
 }

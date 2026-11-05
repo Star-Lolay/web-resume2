@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="112" height="112" viewBox="0 0 112 112">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1A1E24"/><stop offset="1" stop-color="#0E1115"/>
+    </linearGradient>
+  </defs>
+  <rect width="112" height="112" rx="16" fill="url(#bg)"/>
+  <rect x="0.75" y="0.75" width="110.5" height="110.5" rx="15.5" fill="none" stroke="#ffffff" stroke-opacity="0.1"/>
+  <g fill="#B8C4A8" opacity="0.7">
+   <circle cx="34" cy="34" r="4"/><circle cx="56" cy="34" r="4" opacity="0.5"/><circle cx="78" cy="34" r="4" opacity="0.3"/>
+   <circle cx="34" cy="56" r="4" opacity="0.5"/><circle cx="56" cy="56" r="4"/><circle cx="78" cy="56" r="4" opacity="0.5"/>
+   <circle cx="34" cy="78" r="4" opacity="0.3"/><circle cx="56" cy="78" r="4" opacity="0.5"/><circle cx="78" cy="78" r="4" opacity="0.7"/>
+   </g>
+  <text x="56" y="102" text-anchor="middle" font-family="ui-monospace,monospace" font-size="7"
+        letter-spacing="1.2" fill="#ffffff" fill-opacity="0.35">GRID</text>
+</svg>

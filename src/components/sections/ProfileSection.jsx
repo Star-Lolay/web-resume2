@@ -9,25 +9,74 @@
  */
 import React from 'react';
 import { useResume } from '../../lib/resumeStore.jsx';
-import { useRevealGroup, useRichMotion } from '../../hooks/index.js';
+import { useRevealGroup, useRichMotion, useMediaQuery, useInView } from '../../hooks/index.js';
 import SpotlightCard from '../reactbits/SpotlightCard.jsx';
+import GradientASCII from '../reactbits/GradientASCII.jsx';
 import CountUpLite from '../effects/CountUpLite.jsx';
 import SectionHead from '../layout/SectionHead.jsx';
 import Icon from '../ui/Icon.jsx';
 import { resolveAsset } from '../../lib/asset.js';
+import WebGLGuard from '../scene/WebGLGuard.jsx';
 import './ProfileSection.css';
 
 export default function ProfileSection() {
-  const { data, config, intensity } = useResume();
+  const { data, config, intensity, theme, effects } = useResume();
   const { profile, person, metrics } = data;
   const ref = useRevealGroup([profile, person, metrics]);
   const richMotion = useRichMotion(intensity);
+  const sectionRef = React.useRef(null);
+  const inView = useInView(sectionRef, { rootMargin: '120px' });
+  const isMobile = useMediaQuery('(max-width: 899px)');
 
   const fields = (profile.fields || []).slice(0, config.limits.profileFields);
   const metricList = (metrics || []).slice(0, config.limits.metrics);
 
+  /* 模块级背景动效：仅在「可见 + 动效强度够 + 非移动端 + 非亮色主题」时渲染 */
+  const fx = effects.gradientASCII;
+  const isLightTheme = theme === 'paleAsh';
+  const profileBgEnabled =
+    fx.enabled && inView && intensity >= effects.perf.minIntensity && !isLightTheme &&
+    (!isMobile || effects.perf.enableOnMobile);
+
   return (
-    <section className="section profile" id="profile" ref={ref} data-screen-label="02 个人档案">
+    <section
+      className="section profile"
+      id="profile"
+      ref={(el) => {
+        ref.current = el;
+        sectionRef.current = el;
+      }}
+      data-screen-label="02 个人档案"
+    >
+      {/* 模块级 GradientASCII 背景（rise 形态），只在本模块范围内渲染
+          参数与颜色见 src/content/effects.config.js → gradientASCII */}
+      {profileBgEnabled && (
+        <WebGLGuard className="profile__bgfx">
+          <GradientASCII
+            shape={fx.shape}
+            colors={fx.colors}
+            grain={fx.grain}
+            glow={fx.glow}
+            speed={fx.speed}
+            flicker={fx.flicker}
+            cellSize={fx.cellSize}
+            density={fx.density}
+            glyphOpacity={fx.glyphOpacity}
+            softness={fx.softness}
+            gradientOpacity={fx.gradientOpacity}
+            flow={fx.flow}
+            scale={fx.scale}
+            mouseInteraction={false}
+            scrambleRadius={fx.scrambleRadius}
+            clickEffect="none"
+            intro={fx.intro}
+            lightMode={isLightTheme}
+            dpr={fx.dpr}
+            className="profile__bgfx-canvas"
+          />
+        </WebGLGuard>
+      )}
+
       <div className="container">
         <SectionHead
           eyebrow="Profile"

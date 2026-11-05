@@ -64,16 +64,32 @@ export function useRevealGroup(deps = []) {
 }
 
 export function useMediaQuery(query) {
-  const [match, setMatch] = useState(() =>
-    typeof window === 'undefined' ? false : window.matchMedia(query).matches
-  );
+  const [match, setMatch] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return false;
+    try {
+      return window.matchMedia(query).matches;
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
-    const mq = window.matchMedia(query);
+    if (!window.matchMedia) return undefined;
+    let mq;
+    try {
+      mq = window.matchMedia(query);
+    } catch {
+      return undefined;
+    }
     const on = (e) => setMatch(e.matches);
     setMatch(mq.matches);
-    mq.addEventListener?.('change', on);
-    return () => mq.removeEventListener?.('change', on);
+    // 老版 Safari 只有 addListener
+    if (mq.addEventListener) mq.addEventListener('change', on);
+    else if (mq.addListener) mq.addListener(on);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener('change', on);
+      else if (mq.removeListener) mq.removeListener(on);
+    };
   }, [query]);
 
   return match;
@@ -103,6 +119,84 @@ export function usePageVisible() {
   }, []);
 
   return visible;
+}
+
+/**
+ * 元素是否在视口内（含提前量）。
+ *
+ * 用途：让「模块级 WebGL 背景」只在模块可见时才挂载，
+ * 滚出视口立即卸载 —— 这是控制同时存活 canvas 数量的关键。
+ *
+ * 与 useRevealGroup 的区别：
+ *   useRevealGroup 是「进入一次就常亮」的入场动画；
+ *   useInView 是「进出都跟踪」的可见性状态，会跟着滚动变化。
+ */
+export function useInView(ref, options = {}) {
+  const { rootMargin = '80px', threshold = 0.01 } = options;
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref?.current;
+    if (!el) return undefined;
+
+    // 没有 IntersectionObserver 时保守处理：视为可见，
+    // 由上层 intensity / 设备判断继续兜底，绝不因缺失 API 导致空白。
+    if (typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      return undefined;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) setInView(e.isIntersecting);
+      },
+      { rootMargin, threshold }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref, rootMargin, threshold]);
+
+  return inView;
+}
+
+/**
+ * WebGL 可用性探测。
+ *
+ * 为什么需要：低端机、软件渲染环境、或同时开太多 canvas 时，
+ * WebGL 上下文会创建失败或直接丢失（isContextLost()=true）。
+ * 此时组件内部会静默不绘制，留下一个空白 canvas —— 用户看到的是
+ * 「说好的网格背景没了」，而不是优雅降级。
+ *
+ * 这里在挂载前先做一次真实探测（创建后立刻销毁，开销可忽略），
+ * 不可用就直接不渲染重动效层，让静态渐变兜底。
+ *
+ * 结果缓存：整页只探测一次，避免每个组件重复创建上下文。
+ */
+let webglSupportCache = null;
+
+export function useWebGLSupport() {
+  const [supported] = useState(() => {
+    if (webglSupportCache !== null) return webglSupportCache;
+    if (typeof document === 'undefined') return false;
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1;
+      canvas.height = 1;
+      const gl =
+        canvas.getContext('webgl2', { failIfMajorPerformanceCaveat: false }) ||
+        canvas.getContext('webgl');
+      const ok = !!gl && !gl.isContextLost();
+      // 注意：这里不调用 loseContext()。某些环境下主动丢失会让整个页面
+      // 的 WebGL 被标记不可用，导致真实组件创建失败。
+      webglSupportCache = ok;
+      return ok;
+    } catch {
+      webglSupportCache = false;
+      return false;
+    }
+  });
+
+  return supported;
 }
 
 /** 滚动进度（0–1），用于导航栏收缩等 */

@@ -23,11 +23,15 @@ npm run preview    # 预览构建结果
 | --- | --- |
 | 改姓名、简介、经历、项目、技能等**所有文案** | `src/content/resume.data.js` |
 | 换配色、版心宽度、各模块数量上限、功能开关 | `src/content/site.config.js` |
+| 改**动效参数与颜色**（扫描光、板条、ASCII 渐变） | `src/content/effects.config.js` |
 | 调整模块顺序规则、加一种新模块类型 | `src/content/module.registry.js` |
+
+> 动效颜色也可以直接在页面右上角设置面板里改，不用碰代码。
 
 详细说明：
 - **改内容** → [`docs/03-内容修改指南.md`](docs/03-内容修改指南.md)
 - **改结构 / 加模块类型** → [`docs/04-模块系统与自定义说明.md`](docs/04-模块系统与自定义说明.md)
+- **动效系统与单文件导出** → [`docs/05-动效系统与单文件导出.md`](docs/05-动效系统与单文件导出.md)
 - **人物设定与职业规划** → [`docs/01-人物规划与职业路线.md`](docs/01-人物规划与职业路线.md)
 - **视频复刻流程与技术框架** → [`docs/02-复刻流程与技术框架.md`](docs/02-复刻流程与技术框架.md)
 
@@ -51,7 +55,18 @@ npm run preview    # 预览构建结果
 
 > 若页面仍显示旧内容，说明浏览器有 localStorage 覆盖层：编辑 → 数据 → **恢复示例内容**。
 
-### 3. 备份与分享
+### 3. 导出成一个独立网站（给别人看）
+
+设置面板 →「导出 → 导出为单文件网页」→ 生成并下载。
+
+得到一个 `.html` 文件，**双击即可打开**，不需要服务器、不需要部署。
+里面包含你改好的全部内容、配色、动效参数，图片已全部内联。
+发给别人、上传到任意静态托管都能用。
+
+> ⚠️ 导出需要「构建后的版本」。`npm run dev` 下导出会提示不可用——
+> 请先 `npm run build`，再用 `npm run preview` 或线上站点操作。
+
+### 4. 备份与分享（JSON）
 
 - **备份**：编辑 → 数据 → 导出 JSON
 - **迁移**：新设备 → 导入 JSON
@@ -75,7 +90,9 @@ npm run preview    # 预览构建结果
 | 4 套主题 + 动效强度调节 | ✅ | 含一套亮色主题 |
 | JSON 导出 / 导入 | ✅ | 无后端，纯本地 |
 | 空白模板（供他人复用） | ✅ | 清空文案、保留结构 |
-| ReactBits 动效 | ✅ | 4 个官方源码 + 2 个零依赖等价实现 |
+| ReactBits 动效（4 段分层编排） | ✅ | 首屏 GridScan → 滚动衔接 MicroSlats → 底部 GradientASCII + 延迟 0.5s 的 OrbitImages |
+| 动效配色在线调整 | ✅ | 设置面板内改色，实时生效并持久化 |
+| 单文件网页导出 | ✅ | 内容 + 配色 + 动效打包成一个 HTML，双击即开 |
 | 响应式（含移动端抽屉） | ✅ | 390px 无横向溢出 |
 | 无障碍与减弱动效 | ✅ | 尊重 `prefers-reduced-motion` |
 
@@ -85,17 +102,21 @@ npm run preview    # 预览构建结果
 
 | 文件 | 原始 | gzip |
 | --- | --- | --- |
-| HTML | 0.83 KB | 0.59 KB |
-| CSS | 49.2 KB | 9.6 KB |
-| JS | 233.4 KB | 79.9 KB |
+| HTML | 0.89 KB | 0.62 KB |
+| CSS | 61.1 KB | 11.5 KB |
+| JS | 376.6 KB | 126.9 KB |
 
-首屏关键资源 gzip 后约 **90 KB**。
+首屏关键资源 gzip 后约 **140 KB**。
+
+导出成品约 **450 KB**（内联 bundle + 内联图片）。
 
 **已内置的稳定性措施**：
 - 首屏底色不依赖 WebGL，着色器只作纹理叠加 → 任何环境下文字都可读
+- 四段动效按滚动分段挂载，同一时刻最多 1 个 WebGL canvas → 帧率稳定、不争抢上下文配额
+- WebGL 上下文丢失自动摘除该层，退回静态渐变，绝不留死灰块
 - 入场动画有 1.8s / 2s 超时兜底 → 观察器失效也不白屏
-- Canvas 在页面隐藏时暂停、`dpr` 封顶 1.25
-- 移动端自动关闭 3D 倾斜、聚光、视差
+- Canvas 在页面隐藏时暂停、`dpr` 封顶
+- 移动端与亮色主题自动关闭重动效
 - 图片来源本地处理，不上传服务器
 
 ---
@@ -107,20 +128,27 @@ src/
 ├─ content/            ★ 内容层（日常改这里）
 │   ├─ resume.data.js      全部文案与数据
 │   ├─ site.config.js      配色 / 版心 / 上限 / 开关
+│   ├─ effects.config.js   ★ 动效参数与颜色（唯一来源）
 │   └─ module.registry.js  模块注册与自定义类型
 ├─ lib/
 │   ├─ resumeStore.jsx     状态中枢
-│   ├─ storage.js          本地持久化 / 导入导出
+│   ├─ storage.js          本地持久化 / 导入导出 / boot 读取
+│   ├─ effectsStore.js     动效配置读改写
+│   ├─ exportSite.js       ★ 单文件导出核心
+│   ├─ webglBudget.js      WebGL 配额协调
 │   └─ image.js            4:3 裁剪 + 压缩
 ├─ components/
-│   ├─ reactbits/          ReactBits 官方组件（4 个）
-│   ├─ effects/            自研轻量动效（2 个）
+│   ├─ reactbits/          ReactBits 官方组件（GridScan / OrbitImages / MicroSlats / GradientASCII）
+│   ├─ scene/              动效编排层 + WebGL 保护
+│   ├─ effects/            自研轻量动效
 │   ├─ sections/           6 个内置模块 + 自定义模块 + SVG 图表
 │   ├─ layout/             Navbar / SectionHead
-│   ├─ editor/             编辑面板 / 表单 / 设置
+│   ├─ editor/             编辑面板 / 表单 / 设置 / 导出对话框
 │   └─ ui/                 Icon / Toast
-├─ hooks/index.js      入场观测 / 媒体查询 / 页面可见 / 滚动
-└─ styles/             tokens / base / editor
+├─ hooks/index.js      入场观测 / 媒体查询 / 页面可见 / 滚动 / WebGL 探测
+└─ styles/             tokens / base / editor / export
+scripts/
+└─ make-standalone.mjs 构建后复制固定文件名的 bundle（供导出使用）
 ```
 
 ---

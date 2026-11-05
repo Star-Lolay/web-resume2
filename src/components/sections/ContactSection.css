@@ -120,7 +120,10 @@
 /* ---------------------------------------------------------------- 外链 */
 .contact__links {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  /* 用 auto-fit 而不是 auto-fill：列数随实际链接数量收缩。
+     曾用 auto-fill，2 个链接时会生成 5 个空列，
+     空列透出容器底色变成一条灰色块（已修） */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);

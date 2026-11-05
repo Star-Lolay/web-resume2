@@ -1,0 +1,187 @@
+/**
+ * ============================================================================
+ *  SceneBackground.css —— 动效层样式
+ * ============================================================================
+ *  核心原则：
+ *   1. 所有动效层 pointer-events: none —— 绝不拦截正文交互
+ *   2. 所有层都在正文之下 —— 用 z-index 分层，page 内容区 z-index 更高
+ *   3. 每层都有不透明度上限 —— 保证文字永远可读
+ * ============================================================================
+ */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0; /* 正文在 z-index:1，见 base.css 的 .page-content */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ 静态兜底 */
+/* 任何动效不可用时，这三段渐变仍让页面有层次，不会死平 */
+.scene__static {
+  position: absolute;
+  inset: 0;
+}
+.scene__static-hero {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 100vh;
+  background:
+    radial-gradient(72% 52% at 50% 6%, color-mix(in oklab, var(--accent) 9%, var(--bg-elev)) 0%, transparent 62%),
+    var(--bg);
+}
+.scene__static-mid {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 40% at 18% 42%, color-mix(in oklab, var(--accent) 5%, transparent) 0%, transparent 70%),
+    radial-gradient(50% 36% at 84% 66%, color-mix(in oklab, var(--accent-2) 4%, transparent) 0%, transparent 72%);
+}
+.scene__static-bottom {
+  position: absolute;
+  inset: auto 0 0;
+  height: 62vh;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--accent) 6%, var(--bg)) 0%,
+    transparent 100%
+  );
+}
+
+/* ------------------------------------------------------------------ 动效层通用 */
+.scene__layer {
+  position: absolute;
+  inset: 0;
+  transition: opacity 220ms linear;
+  will-change: opacity;
+}
+.scene__canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* 首屏 GridScan：只覆盖首屏高度，往下不延伸
+   关键：GridScan 的 canvas 自带一块浅灰底（着色器把整块面都画了），
+   直接当底色会把深色站洗白。所以这里用两种手段把它"压"回纹理层：
+     1. 极低不透明度 —— 只留网格线和扫描光可辨
+     2. mix-blend-mode: screen —— 只让比底色亮的部分（线、光）叠加，
+        比底色暗的部分自动消失，浅灰底不会盖住深色 */
+.scene__layer--grid {
+  inset: 0 0 auto;
+  height: 100vh;
+  mix-blend-mode: screen;
+}
+
+/* MicroSlats：覆盖整个可滚动区域，滚动时才有"一直跟着"的感觉
+   问题：这一组参数（contrast=1.8 / glint=1.3）本身就会让部分板条冲成
+   接近纯白，叠在正文区域时形成棋盘格，抢走文字可读性。
+   参数是需求指定的，不能改 —— 所以从「层」这一级压回去：
+     1. mix-blend-mode: screen —— 暗部直接消失，只留高光参与叠加
+     2. 顶部渐隐遮罩 —— 模块标题区完全干净，板条只在中下部露出来
+     3. 降低不透明度（见 effects.config.js 的 microSlats.opacity） */
+.scene__layer--slats {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  mix-blend-mode: screen;
+  /* 遮罩做三段：顶端完全透明 → 中部最实 → 再往下稳定
+     这样每一屏的模块标题都落在"透明"那一段上 */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 14%,
+    #000 32%,
+    #000 74%,
+    rgba(0, 0, 0, 0.3) 92%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 14%,
+    #000 32%,
+    #000 74%,
+    rgba(0, 0, 0, 0.3) 92%,
+    transparent 100%
+  );
+}
+
+/* 底部 GradientASCII：固定贴底，高度为视口的一部分 */
+.scene__layer--bottom {
+  position: fixed;
+  inset: auto 0 0;
+  height: 58vh;
+  /* 顶部渐隐，避免出现一条硬边 */
+  mask-image: linear-gradient(to top, #000 22%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, #000 22%, transparent 100%);
+}
+
+/* ------------------------------------------------------------------ 环形图片层 */
+/* 定位在首屏标题右侧的留白区，不压住文字 */
+.scene__orbit {
+  position: absolute;
+  top: 50%;
+  right: clamp(-140px, -6vw, -40px);
+  width: min(760px, 62vw);
+  transform: translateY(-62%);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* 环形图是装饰，鼠标不该被它挡住 */
+  pointer-events: none;
+}
+.scene__orbit-canvas {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------ 响应式 */
+/* 窄屏：环形图缩到标题下方，别再往右上跑 */
+@media (max-width: 1100px) {
+  .scene__orbit {
+    right: -12vw;
+    width: 82vw;
+    transform: translateY(-58%);
+  }
+}
+
+@media (max-width: 899px) {
+  .scene__orbit {
+    display: none; /* 移动端关闭（与 effectsConfig.perf.enableOnMobile 一致） */
+  }
+  /* 移动端只留静态渐变，但把它调得更有层次一点 */
+  .scene__static-mid {
+    background:
+      radial-gradient(90% 50% at 50% 30%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 72%),
+      radial-gradient(80% 44% at 50% 78%, color-mix(in oklab, var(--accent-2) 5%, transparent) 0%, transparent 74%);
+  }
+  .scene__layer--bottom {
+    height: 42vh;
+  }
+}
+
+/* ------------------------------------------------------------------ 减弱动效 */
+@media (prefers-reduced-motion: reduce) {
+  .scene__layer,
+  .scene__orbit {
+    transition: none;
+  }
+}
+
+/* 动效总开关关闭时（dataset.motion="off"），彻底隐藏动效层 */
+html[data-motion='off'] .scene__layer,
+html[data-motion='off'] .scene__orbit {
+  display: none;
+}
+
+/* 亮色主题：WebGL 层已由 JS 层拦截不渲染，这里只兜住静态渐变 */
+html[data-theme='paleAsh'] .scene__static-hero {
+  background:
+    radial-gradient(70% 50% at 50% 6%, color-mix(in oklab, var(--accent) 8%, #ffffff) 0%, transparent 64%),
+    var(--bg);
+}
+html[data-theme='paleAsh'] .scene__static-bottom {
+  background: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--accent) 10%, var(--bg)) 0%,
+    transparent 100%
+  );
+}

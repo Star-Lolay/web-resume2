@@ -5,6 +5,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { useResume } from '../../lib/resumeStore.jsx';
+import { isStandalone } from '../../lib/storage.js';
 import { NAV_ITEMS } from '../../content/module.registry.js';
 import { useScrollProgress } from '../../hooks/index.js';
 import './Navbar.css';
@@ -79,20 +80,25 @@ export default function Navbar({ onOpenPanel }) {
           </nav>
 
           <div className="nav__actions">
-            <button
-              className={`nav__edit ${editing ? 'is-on' : ''}`}
-              onClick={() => setEditing(!editing)}
-              aria-pressed={editing}
-            >
-              <span className="nav__edit-dot" aria-hidden="true" />
-              {editing ? '退出编辑' : '编辑'}
-            </button>
-            <button className="nav__panel-btn" onClick={onOpenPanel} aria-label="打开设置面板">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" />
-              </svg>
-            </button>
+            {/* 导出成品里不显示编辑器与设置入口：成品是只读交付物 */}
+            {!isStandalone() && (
+              <button
+                className={`nav__edit ${editing ? 'is-on' : ''}`}
+                onClick={() => setEditing(!editing)}
+                aria-pressed={editing}
+              >
+                <span className="nav__edit-dot" aria-hidden="true" />
+                {editing ? '退出编辑' : '编辑'}
+              </button>
+            )}
+            {!isStandalone() && (
+              <button className="nav__panel-btn" onClick={onOpenPanel} aria-label="打开设置面板">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" />
+                </svg>
+              </button>
+            )}
             <button
               className="nav__burger"
               onClick={() => setOpen(!open)}

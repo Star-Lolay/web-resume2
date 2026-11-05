@@ -15,7 +15,13 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import defaultData from '../content/resume.data.js';
 import siteConfig, { THEMES } from '../content/site.config.js';
 import { BUILTIN_MODULES, CUSTOM_TYPES } from '../content/module.registry.js';
-import { loadData, saveData, clearData, loadUi, saveUi, mergeDeep } from './storage.js';
+import { loadData, saveData, clearData, loadUi, saveUi, mergeDeep, getBoot } from './storage.js';
+import {
+  resolveEffects,
+  saveEffectsOverride,
+  clearEffectsOverride,
+  setByPath,
+} from './effectsStore.js';
 
 const ResumeCtx = createContext(null);
 
@@ -51,6 +57,44 @@ export function ResumeProvider({ children }) {
   const [intensity, setIntensityState] = useState(
     () => loadUi({ intensity: siteConfig.motion.intensity }).intensity
   );
+
+  /* ------------------------------------------------------------- 动效配置
+   * effects：当前生效的完整配置（默认值 + 用户覆盖）
+   * effectsOverride：用户改过的字段，用于持久化与「恢复默认」
+   *
+   * 初始化顺序很关键：
+   *   1. 导出成品（有 window.__RESUME_BOOT__）→ 直接用 boot 里的完整配置。
+   *      这是「成品必须和创作者调好的效果一模一样」的唯一保证。
+   *   2. 普通站点 → 读 localStorage 的覆盖层。
+   * 曾经这里无条件读 localStorage，导致成品拿到 {}、boot 被绕过，
+   * 环形图仍去请求 /orbit/xxx.svg 而不是内联的 data URL（已踩过）。 */
+  const [effectsOverride, setEffectsOverride] = useState(() => {
+    const boot = getBoot();
+    if (boot?.effects && typeof boot.effects === 'object') return boot.effects;
+    try {
+      const raw = localStorage.getItem('web-resume2:effects');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  const effects = useMemo(() => resolveEffects(effectsOverride), [effectsOverride]);
+
+  /** 改一个动效字段：setEffect('gridScan.scanColor', '#8ab4ff') */
+  const setEffect = useCallback((path, value) => {
+    setEffectsOverride((prev) => {
+      const next = setByPath(prev && typeof prev === 'object' ? prev : {}, path, value);
+      saveEffectsOverride(next);
+      return next;
+    });
+  }, []);
+
+  /** 恢复全部动效为出厂默认 */
+  const resetEffects = useCallback(() => {
+    clearEffectsOverride();
+    setEffectsOverride({});
+  }, []);
 
   /* ------------------------------------------------------------- 编辑器 */
   const [editing, setEditing] = useState(false);
@@ -364,6 +408,11 @@ export function ResumeProvider({ children }) {
       intensity,
       setIntensity,
       themes: THEMES,
+      // 动效
+      effects,
+      effectsOverride,
+      setEffect,
+      resetEffects,
       // 全局
       resetToDefault,
       applyImported,
@@ -397,6 +446,10 @@ export function ResumeProvider({ children }) {
       setTheme,
       intensity,
       setIntensity,
+      effects,
+      effectsOverride,
+      setEffect,
+      resetEffects,
       resetToDefault,
       applyImported,
     ]

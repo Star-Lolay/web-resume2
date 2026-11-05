@@ -15,66 +15,49 @@
 }
 
 /* ---------------------------------------------------------------- 背景 */
+/* 首屏不再自己画背景 —— 由 SceneBackground 的 GridScan 层统一提供。
+   这里只保留「压暗层」，保证任何着色器输出下文字都可读。 */
 .hero__bg {
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
 }
-/* 兜底底色：不依赖任何动效，保证深色基底始终存在 */
+/* 文字可读性护栏：不依赖任何动效，始终在 GridScan 之上、文字之下。
+   左侧压得更暗，因为标题在左下。 */
 .hero__base {
   position: absolute;
   inset: 0;
-  /* 用主题令牌推导，亮色主题下自动变为浅底，避免"深蒙版压浅字" */
   background:
-    radial-gradient(
-      80% 55% at 50% 4%,
-      color-mix(in oklab, var(--accent) 10%, var(--bg-elev)) 0%,
-      color-mix(in oklab, var(--accent) 4%, var(--bg)) 44%,
-      var(--bg) 80%
-    ),
-    var(--bg);
-}
-.hero__aurora {
-  position: absolute;
-  /* 亮色主题下不启用着色器叠加，避免混色发脏 */
-  opacity: 1;
-  inset: -10% -6% auto;
-  height: 104%;
-  will-change: transform;
-  opacity: 0.5;
-  /* 着色器只作为纹理叠加，不允许压过底色 */
-  mix-blend-mode: soft-light;
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--bg) 62%, transparent) 0%,
+      color-mix(in oklab, var(--bg) 30%, transparent) 44%,
+      transparent 76%
+    );
 }
 .hero__fallback {
   position: absolute;
   inset: 0;
   background:
     radial-gradient(90% 62% at 50% 0%, color-mix(in oklab, var(--accent) 13%, transparent), transparent 68%),
-    radial-gradient(60% 44% at 82% 18%, color-mix(in oklab, var(--accent-2) 7%, transparent), transparent 62%),
-    linear-gradient(180deg, #101317 0%, var(--bg) 62%);
+    radial-gradient(60% 44% at 82% 18%, color-mix(in oklab, var(--accent-2) 7%, transparent), transparent 62%);
 }
 .hero__veil {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    color-mix(in oklab, var(--bg) 34%, transparent) 0%,
-    transparent 26%,
-    color-mix(in oklab, var(--bg) 18%, transparent) 58%,
-    var(--bg) 94%
+    color-mix(in oklab, var(--bg) 46%, transparent) 0%,
+    color-mix(in oklab, var(--bg) 22%, transparent) 24%,
+    color-mix(in oklab, var(--bg) 20%, transparent) 56%,
+    color-mix(in oklab, var(--bg) 84%, transparent) 90%,
+    var(--bg) 100%
   );
 }
-/* 细网格，提供"秩序感"，几乎零成本 */
+/* 细网格已由 GridScan 提供，这里关闭重复的静态网格 */
 .hero__grid {
-  position: absolute;
-  inset: 0;
-  opacity: 0.5;
-  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
-  background-size: 96px 96px;
-  mask-image: radial-gradient(120% 90% at 50% 20%, black 10%, transparent 72%);
-  -webkit-mask-image: radial-gradient(120% 90% at 50% 20%, black 10%, transparent 72%);
+  display: none;
 }
 
 /* ---------------------------------------------------------------- 内容 */

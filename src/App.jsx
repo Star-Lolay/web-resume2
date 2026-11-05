@@ -21,6 +21,7 @@ import ProjectsSection from './components/sections/ProjectsSection.jsx';
 import CapabilitiesSection from './components/sections/CapabilitiesSection.jsx';
 import ContactSection from './components/sections/ContactSection.jsx';
 import CustomSection from './components/sections/CustomSection.jsx';
+import SceneBackground from './components/scene/SceneBackground.jsx';
 import EditorPanel from './components/editor/EditorPanel.jsx';
 import SettingsPanel from './components/editor/SettingsPanel.jsx';
 import Toast from './components/ui/Toast.jsx';
@@ -36,7 +37,7 @@ const SECTION_MAP = {
 };
 
 function Site() {
-  const { moduleSequence, editing, toast, persistError } = useResume();
+  const { moduleSequence, editing, toast, persistError, intensity, theme } = useResume();
   const [panelOpen, setPanelOpen] = useState(false);
 
   /* 截图 / 深链定位：?scroll=1200 或 ?scroll=projects
@@ -57,6 +58,10 @@ function Site() {
 
   return (
     <>
+      {/* 动效场景层：GridScan → MicroSlats → GradientASCII 按滚动渐变衔接
+          参数与颜色全部在 src/content/effects.config.js */}
+      <SceneBackground intensity={intensity} theme={theme} />
+
       <div className="page-bg" aria-hidden="true">
         <div className="page-bg__veil" />
         <div className="page-bg__grain" />
@@ -64,7 +69,7 @@ function Site() {
 
       <Navbar onOpenPanel={() => setPanelOpen(true)} />
 
-      <main>
+      <main className="page-content">
         {moduleSequence.map((key) => {
           const Builtin = SECTION_MAP[key];
           if (Builtin) return <Builtin key={key} />;

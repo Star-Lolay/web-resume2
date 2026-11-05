@@ -2,6 +2,8 @@
 node_modules/
 dist/
 .workbuddy/
+# ReactBits registry 原始 JSON 缓存（组件源码已解包进 src/components/reactbits）
+.rb2/
 
 # 本地环境变量（含密钥时绝不提交）
 .env
