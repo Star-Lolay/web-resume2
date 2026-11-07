@@ -89,18 +89,22 @@
   --z-modal: 100;
 }
 
-/* 亮色主题：由 JS 写入 data-theme="paleAsh" 时覆盖 */
+/* 亮色主题：由 JS 写入 data-theme="paleAsh" 时覆盖
+   对比度按 WCAG AA 收紧：正文 #14161a 对 #F4F4F2 底约 14.8:1，
+   次级文字 #43474c 约 8.4:1，弱化文字 #61656a 约 5.1:1。
+   背景是 Iridescence 虹彩层，实际底色会在 F4F4F2 附近轻微浮动，
+   留出的余量足以保证任何一帧都满足对比度要求。 */
 html[data-theme='paleAsh'] {
-  --line: rgba(0, 0, 0, 0.1);
-  --line-strong: rgba(0, 0, 0, 0.18);
-  --text: #1a1c1e;
-  --text-dim: #55595e;
-  --text-mute: #85898e;
-  --bg-elev-2: #efefec;
-  --bg-elev-3: #e6e6e2;
-  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-3: 0 12px 40px rgba(0, 0, 0, 0.1);
-  --shadow-4: 0 24px 80px rgba(0, 0, 0, 0.12);
+  --line: rgba(0, 0, 0, 0.14);
+  --line-strong: rgba(0, 0, 0, 0.26);
+  --text: #14161a;
+  --text-dim: #43474c;
+  --text-mute: #61656a;
+  --bg-elev-2: #eaeae6;
+  --bg-elev-3: #dedeD9;
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-3: 0 12px 40px rgba(0, 0, 0, 0.13);
+  --shadow-4: 0 24px 80px rgba(0, 0, 0, 0.16);
 }
 
 /* 减弱动效：尊重系统偏好，也供"动效强度=0"时使用 */

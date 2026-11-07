@@ -23,7 +23,7 @@ npm run preview    # 预览构建结果
 | --- | --- |
 | 改姓名、简介、经历、项目、技能等**所有文案** | `src/content/resume.data.js` |
 | 换配色、版心宽度、各模块数量上限、功能开关 | `src/content/site.config.js` |
-| 改**动效参数与颜色**（扫描光、板条、ASCII 渐变） | `src/content/effects.config.js` |
+| 改**动效参数与颜色**（扫描光、方块流动、星野、虹彩） | `src/content/effects.config.js` |
 | 调整模块顺序规则、加一种新模块类型 | `src/content/module.registry.js` |
 
 > 动效颜色也可以直接在页面右上角设置面板里改，不用碰代码。
@@ -90,7 +90,7 @@ npm run preview    # 预览构建结果
 | 4 套主题 + 动效强度调节 | ✅ | 含一套亮色主题 |
 | JSON 导出 / 导入 | ✅ | 无后端，纯本地 |
 | 空白模板（供他人复用） | ✅ | 清空文案、保留结构 |
-| ReactBits 动效（4 段分层编排） | ✅ | 首屏 GridScan → 滚动衔接 MicroSlats → 底部 GradientASCII + 延迟 0.5s 的 OrbitImages |
+| ReactBits 动效（分段编排） | ✅ | 首屏 GridScan → 中段 MicroSlats → 最后一屏 Galaxy + 白色流光；延迟 0.5s 的 OrbitImages；亮色主题全程 Iridescence |
 | 动效配色在线调整 | ✅ | 设置面板内改色，实时生效并持久化 |
 | 单文件网页导出 | ✅ | 内容 + 配色 + 动效打包成一个 HTML，双击即开 |
 | 响应式（含移动端抽屉） | ✅ | 390px 无横向溢出 |
@@ -112,11 +112,11 @@ npm run preview    # 预览构建结果
 
 **已内置的稳定性措施**：
 - 首屏底色不依赖 WebGL，着色器只作纹理叠加 → 任何环境下文字都可读
-- 四段动效按滚动分段挂载，同一时刻最多 1 个 WebGL canvas → 帧率稳定、不争抢上下文配额
+- 动效按页面位置分段挂载，同一时刻最多 1 个主体 WebGL canvas → 帧率稳定、不争抢上下文配额
 - WebGL 上下文丢失自动摘除该层，退回静态渐变，绝不留死灰块
 - 入场动画有 1.8s / 2s 超时兜底 → 观察器失效也不白屏
 - Canvas 在页面隐藏时暂停、`dpr` 封顶
-- 移动端与亮色主题自动关闭重动效
+- 移动端关闭重动效；亮色主题改用低饱和 Iridescence 虹彩层
 - 图片来源本地处理，不上传服务器
 
 ---
@@ -138,7 +138,7 @@ src/
 │   ├─ webglBudget.js      WebGL 配额协调
 │   └─ image.js            4:3 裁剪 + 压缩
 ├─ components/
-│   ├─ reactbits/          ReactBits 官方组件（GridScan / OrbitImages / MicroSlats / GradientASCII）
+│   ├─ reactbits/          ReactBits 官方组件（GridScan / OrbitImages / MicroSlats / Galaxy / Iridescence）
 │   ├─ scene/              动效编排层 + WebGL 保护
 │   ├─ effects/            自研轻量动效
 │   ├─ sections/           6 个内置模块 + 自定义模块 + SVG 图表

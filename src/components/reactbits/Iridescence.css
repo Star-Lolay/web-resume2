@@ -1,11 +1,11 @@
-.aurora-container {
+.iridescence-container {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
 
-.aurora-canvas {
+.iridescence-canvas {
   position: absolute;
   inset: 0;
   display: block;

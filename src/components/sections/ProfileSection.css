@@ -2,38 +2,11 @@
    ProfileSection.css
    ========================================================================== */
 
-/* 模块级 GradientASCII 背景（rise 形态）
-   只在模块可见时挂载，压在内容之下，低不透明度保证正文可读 */
+/* 模块背景动效已统一交给 SceneBackground 的 MicroSlats（方块流动），
+   这里只保留定位上下文，不再挂独立 WebGL 层。 */
 .profile {
   position: relative;
   isolation: isolate;
-}
-.profile__bgfx {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0.2; /* = effectsConfig.gradientASCII.profileOpacity */
-  /* 上下边缘渐隐，避免与相邻模块出现硬边 */
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 18%,
-    #000 82%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 18%,
-    #000 82%,
-    transparent 100%
-  );
-}
-.profile__bgfx-canvas {
-  width: 100%;
-  height: 100%;
 }
 
 .profile__grid {

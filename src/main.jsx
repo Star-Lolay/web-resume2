@@ -26,7 +26,7 @@ injectStyles('project-chart-styles', projectChartStyles);
  * 说明：这里不使用 React.StrictMode。
  *
  * 原因：StrictMode 在开发模式下会「挂载 → 卸载 → 再挂载」每个组件一次，
- * 用于暴露副作用问题。但 WebGL 组件（GridScan / MicroSlats / GradientASCII）
+ * 用于暴露副作用问题。但 WebGL 组件（GridScan / MicroSlats / Galaxy 等）
  * 在 cleanup 里会调用 gl.getExtension('WEBGL_lose_context').loseContext() 释放上下文，
  * 而第二次挂载复用的是同一个 <canvas> 元素 —— 它的上下文已被丢弃，导致动效永久黑屏。
  *

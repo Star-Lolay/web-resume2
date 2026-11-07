@@ -58,8 +58,8 @@ function Site() {
 
   return (
     <>
-      {/* 动效场景层：GridScan → MicroSlats → GradientASCII 按滚动渐变衔接
-          参数与颜色全部在 src/content/effects.config.js */}
+      {/* 动效场景层：GridScan（仅首屏）→ MicroSlats（中段）→ Galaxy（最后一屏）
+          亮色主题改为全站固定 Iridescence。参数与颜色全部在 src/content/effects.config.js */}
       <SceneBackground intensity={intensity} theme={theme} />
 
       <div className="page-bg" aria-hidden="true">

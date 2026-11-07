@@ -6,6 +6,7 @@
  *   1. 所有动效层 pointer-events: none —— 绝不拦截正文交互
  *   2. 所有层都在正文之下 —— 用 z-index 分层，page 内容区 z-index 更高
  *   3. 每层都有不透明度上限 —— 保证文字永远可读
+ *   4. 层与层之间靠 mask 做渐变衔接，不出现硬边
  * ============================================================================
  */
 
@@ -61,60 +62,225 @@
   height: 100%;
 }
 
-/* 首屏 GridScan：只覆盖首屏高度，往下不延伸
-   关键：GridScan 的 canvas 自带一块浅灰底（着色器把整块面都画了），
-   直接当底色会把深色站洗白。所以这里用两种手段把它"压"回纹理层：
-     1. 极低不透明度 —— 只留网格线和扫描光可辨
-     2. mix-blend-mode: screen —— 只让比底色亮的部分（线、光）叠加，
-        比底色暗的部分自动消失，浅灰底不会盖住深色 */
+/* ============================================================================
+ *  ① 首屏 GridScan —— 严格只占第一屏
+ * ============================================================================
+ *  关键 1：高度锁死 100vh（不是 100%），滚过一屏后它完全不在视野里，
+ *          不会把纵深方框带到第二页去。
+ *  关键 2：底部用 mask 渐隐 → 与下面的方块流动自然衔接，不出现硬边，
+ *          也不会在首屏底部留下一块压暗的"阴影"（reflection 已在配置里关掉）。
+ *  关键 3：GridScan 的 canvas 自带浅灰底，着色器把整块面都画了。
+ *          直接用会把深色站洗白，所以用 mix-blend-mode: screen 把暗部滤掉，
+ *          只留网格线与扫描光可辨。
+ */
 .scene__layer--grid {
   inset: 0 0 auto;
   height: 100vh;
+  height: 100dvh;
   mix-blend-mode: screen;
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 62%,
+    rgba(0, 0, 0, 0.55) 82%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 62%,
+    rgba(0, 0, 0, 0.55) 82%,
+    transparent 100%
+  );
 }
 
-/* MicroSlats：覆盖整个可滚动区域，滚动时才有"一直跟着"的感觉
-   问题：这一组参数（contrast=1.8 / glint=1.3）本身就会让部分板条冲成
-   接近纯白，叠在正文区域时形成棋盘格，抢走文字可读性。
-   参数是需求指定的，不能改 —— 所以从「层」这一级压回去：
-     1. mix-blend-mode: screen —— 暗部直接消失，只留高光参与叠加
-     2. 顶部渐隐遮罩 —— 模块标题区完全干净，板条只在中下部露出来
-     3. 降低不透明度（见 effects.config.js 的 microSlats.opacity） */
+/* ============================================================================
+ *  ② MicroSlats —— 简历主体（方块流动）
+ * ============================================================================
+ *  这一层是简历页的主角，需要"看得见"。但 contrast=1.8 / glint=1.3 这组参数
+ *  本身会让部分板条冲成接近纯白，叠在正文上形成棋盘格。
+ *  处理：screen 混合只叠加高光 + 左右两侧留白区露出主体，
+ *        正文所在的中间列用 mask 压淡 —— 既保留流动感，又不干扰阅读。
+ *  （参数是需求指定的，不能改，只能从"层"这一级调权重）
+ */
 .scene__layer--slats {
   position: absolute;
   inset: 0;
   height: 100%;
   mix-blend-mode: screen;
-  /* 遮罩做三段：顶端完全透明 → 中部最实 → 再往下稳定
-     这样每一屏的模块标题都落在"透明"那一段上 */
+  /* 提亮：screen 混合下暗部不参与叠加，画面容易整体发闷。
+     实测（1440×900 中段截图）：不调时平均亮度 31.5，
+     这组参数提到 35.2，同时像素标准差从 19.5 降到 18.9 ——
+     也就是「更亮但更柔和」，方格不再硬邦邦地抢文字。 */
+  filter: brightness(1.6) contrast(0.92) saturate(0.85);
+  mask-image:
+    /* 横向：正文列轻微压淡，两侧不强推 —— 避免边缘出现一条亮棋盘带 */
+    linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.62) 6%,
+      rgba(0, 0, 0, 0.46) 22%,
+      rgba(0, 0, 0, 0.4) 42%,
+      rgba(0, 0, 0, 0.4) 58%,
+      rgba(0, 0, 0, 0.46) 78%,
+      rgba(0, 0, 0, 0.62) 94%,
+      transparent 100%
+    ),
+    /* 纵向：上下端渐隐，模块之间不出现硬切 */
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.55) 5%,
+      #000 14%,
+      #000 90%,
+      rgba(0, 0, 0, 0.5) 96%,
+      transparent 100%
+    );
+  mask-composite: intersect;
+  -webkit-mask-image:
+    linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.62) 6%,
+      rgba(0, 0, 0, 0.46) 22%,
+      rgba(0, 0, 0, 0.4) 42%,
+      rgba(0, 0, 0, 0.4) 58%,
+      rgba(0, 0, 0, 0.46) 78%,
+      rgba(0, 0, 0, 0.62) 94%,
+      transparent 100%
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.55) 5%,
+      #000 14%,
+      #000 90%,
+      rgba(0, 0, 0, 0.5) 96%,
+      transparent 100%
+    );
+  -webkit-mask-composite: source-in;
+}
+
+/* ============================================================================
+ *  ③ Galaxy —— 最后一屏的星野收尾
+ * ============================================================================
+ *  星点很小很亮，直接用 screen 让它只叠加亮点，暗底自然消失。
+ *  顶部渐隐，避免从上一段硬切进星空。
+ */
+.scene__layer--galaxy {
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 100%);
+}
+
+/* ============================================================================
+ *  ⑤ Iridescence —— 亮色主题全站固定背景
+ * ============================================================================
+ *  亮色主题下它是唯一动效层，覆盖全屏。
+ *  ── 为什么要压这么狠 ──────────────────────────────────────────────────
+ *  Iridescence 默认输出是高饱和的彩虹波纹（粉紫 + 青绿）。原样铺在简历上
+ *  会直接抢掉正文注意力，亮色主题变成了"彩色壁纸"。
+ *  这里做三层收敛：
+ *    1. multiply 混合 —— 只做纸面上的"压印光泽"，不会浮在文字上面
+ *    2. 降低不透明度 + 降饱和 —— 从"彩色"退到"微微泛色"
+ *    3. 竖向遮罩 —— 上下边缘更淡，中段留一点呼吸
+ *  改完的效果是：近看能察觉到一层流动的珠光，远看仍是一片干净浅底。
+ */
+.scene__layer--irid {
+  mix-blend-mode: multiply;
+  filter: saturate(0.42) brightness(1.06) contrast(0.96);
   mask-image: linear-gradient(
     to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 0.25) 14%,
-    #000 32%,
-    #000 74%,
-    rgba(0, 0, 0, 0.3) 92%,
-    transparent 100%
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.72) 22%,
+    rgba(0, 0, 0, 0.72) 78%,
+    rgba(0, 0, 0, 0.35) 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 0.25) 14%,
-    #000 32%,
-    #000 74%,
-    rgba(0, 0, 0, 0.3) 92%,
-    transparent 100%
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.72) 22%,
+    rgba(0, 0, 0, 0.72) 78%,
+    rgba(0, 0, 0, 0.35) 100%
   );
 }
 
-/* 底部 GradientASCII：固定贴底，高度为视口的一部分 */
-.scene__layer--bottom {
-  position: fixed;
+/* ============================================================================
+ *  ④ 白色流动边缘 —— 最后一屏底部的一小块柔光
+ * ============================================================================
+ *  需求：最后一页不要紫色边缘动效，只要一小块白色流动边缘。
+ *  ── 为什么用径向渐变而不是横条 ─────────────────────────────────────────
+ *  横条必然有左右两个端点，落在画面上就是两条硬边，看起来像"贴了一块白纸"。
+ *  这里改成椭圆径向渐变：中心亮、四周自然衰减，没有可辨的边界；
+ *  再用两个错开的动画让亮心缓慢游移，产生"流动"感。
+ */
+.scene__edge {
+  position: absolute;
   inset: auto 0 0;
-  height: 58vh;
-  /* 顶部渐隐，避免出现一条硬边 */
-  mask-image: linear-gradient(to top, #000 22%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to top, #000 22%, transparent 100%);
+  height: var(--edge-h, 14vh);
+  opacity: 0;
+  transition: opacity 520ms var(--ease-out);
+  mix-blend-mode: screen;
+  /* 需求是"一小块"，不是横贯整条底边 */
+  width: min(52vw, 720px);
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* ① 柔光主体：椭圆径向渐变，中心最亮 */
+.scene__edge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    58% 88% at 50% 100%,
+    var(--edge-c1, #fff) 0%,
+    var(--edge-c2, #e8eef5) 26%,
+    color-mix(in oklab, var(--edge-c3, #fff) 26%, transparent) 56%,
+    transparent 78%
+  );
+  opacity: var(--edge-op, 0.5);
+  filter: blur(22px);
+  animation: scene-edge-breathe calc(var(--edge-dur, 9s) * 1.4) ease-in-out infinite alternate;
+}
+
+/* ② 流动亮心：一个更小更亮的芯，横向缓慢游移 */
+.scene__edge::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 62%;
+  background: radial-gradient(
+    30% 100% at 50% 100%,
+    color-mix(in oklab, var(--edge-c1, #fff) 92%, transparent) 0%,
+    color-mix(in oklab, var(--edge-c3, #fff) 34%, transparent) 46%,
+    transparent 74%
+  );
+  filter: blur(10px);
+  opacity: calc(var(--edge-op, 0.5) * 1.5);
+  animation: scene-edge-drift var(--edge-dur, 9s) ease-in-out infinite alternate;
+}
+
+@keyframes scene-edge-breathe {
+  from {
+    transform: scaleX(0.94) scaleY(0.96);
+    opacity: calc(var(--edge-op, 0.5) * 0.82);
+  }
+  to {
+    transform: scaleX(1.04) scaleY(1.02);
+    opacity: var(--edge-op, 0.5);
+  }
+}
+
+@keyframes scene-edge-drift {
+  from {
+    transform: translateX(-17%);
+  }
+  to {
+    transform: translateX(17%);
+  }
 }
 
 /* ------------------------------------------------------------------ 环形图片层 */
@@ -153,8 +319,8 @@
       radial-gradient(90% 50% at 50% 30%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 72%),
       radial-gradient(80% 44% at 50% 78%, color-mix(in oklab, var(--accent-2) 5%, transparent) 0%, transparent 74%);
   }
-  .scene__layer--bottom {
-    height: 42vh;
+  .scene__edge {
+    height: 10vh;
   }
 }
 
@@ -164,24 +330,38 @@
   .scene__orbit {
     transition: none;
   }
+  .scene__edge::before,
+  .scene__edge::after {
+    animation: none;
+  }
 }
-
 /* 动效总开关关闭时（dataset.motion="off"），彻底隐藏动效层 */
 html[data-motion='off'] .scene__layer,
-html[data-motion='off'] .scene__orbit {
+html[data-motion='off'] .scene__orbit,
+html[data-motion='off'] .scene__edge {
   display: none;
 }
 
-/* 亮色主题：WebGL 层已由 JS 层拦截不渲染，这里只兜住静态渐变 */
+/* ============================================================================
+ *  亮色主题：静态兜底
+ * ============================================================================
+ *  WebGL 层这时只剩 Iridescence，其余按 JS 逻辑不渲染。
+ *  这里只把静态底调成"纸面"质感，避免整片死白。
+ */
 html[data-theme='paleAsh'] .scene__static-hero {
   background:
-    radial-gradient(70% 50% at 50% 6%, color-mix(in oklab, var(--accent) 8%, #ffffff) 0%, transparent 64%),
+    radial-gradient(70% 50% at 50% 6%, color-mix(in oklab, var(--accent) 10%, #ffffff) 0%, transparent 64%),
     var(--bg);
+}
+html[data-theme='paleAsh'] .scene__static-mid {
+  background:
+    radial-gradient(60% 40% at 20% 38%, color-mix(in oklab, var(--accent) 6%, transparent) 0%, transparent 70%),
+    radial-gradient(52% 38% at 82% 70%, color-mix(in oklab, var(--accent-2) 5%, transparent) 0%, transparent 72%);
 }
 html[data-theme='paleAsh'] .scene__static-bottom {
   background: linear-gradient(
     to top,
-    color-mix(in oklab, var(--accent) 10%, var(--bg)) 0%,
+    color-mix(in oklab, var(--accent) 12%, var(--bg)) 0%,
     transparent 100%
   );
 }

@@ -100,20 +100,36 @@ export const EFFECT_COLOR_FIELDS = [
     type: 'color',
   },
   {
-    path: 'gradientASCII.colors',
-    label: '底部 / 档案 · 渐变',
-    hint: 'GradientASCII 的渐变色，按顺序过渡',
-    default: effectsConfig.gradientASCII.colors,
+    path: 'galaxy.starColors',
+    label: '收尾 · 星点色',
+    hint: '最后一屏星野的星点颜色，最多 4 个',
+    default: effectsConfig.galaxy.starColors,
     type: 'colorList',
+  },
+  {
+    path: 'edgeGlow.colors',
+    label: '收尾 · 底边流光',
+    hint: '最后一屏底部那条白色流动边缘',
+    default: effectsConfig.edgeGlow.colors,
+    type: 'colorList',
+  },
+  {
+    path: 'iridescence.color',
+    label: '亮色主题 · 虹彩底',
+    hint: '浅灰配色下的全站背景基色',
+    default: effectsConfig.iridescence.color,
+    type: 'color',
   },
 ];
 
 /** 各效果的开关（关掉某个不会影响其它） */
 export const EFFECT_TOGGLES = [
-  { path: 'gridScan.enabled', label: '首屏 3D 网格扫描', hint: 'GridScan' },
+  { path: 'gridScan.enabled', label: '首屏 3D 网格扫描', hint: 'GridScan，仅第一页' },
   { path: 'orbitImages.enabled', label: '首屏环形图片', hint: 'OrbitImages，延迟 0.5s 出现' },
-  { path: 'microSlats.enabled', label: '简历区板条背景', hint: 'MicroSlats' },
-  { path: 'gradientASCII.enabled', label: '底部 & 档案页 ASCII 渐变', hint: 'GradientASCII' },
+  { path: 'microSlats.enabled', label: '简历区方块流动', hint: 'MicroSlats，覆盖中段所有模块' },
+  { path: 'galaxy.enabled', label: '最后一屏星野', hint: 'Galaxy' },
+  { path: 'edgeGlow.enabled', label: '最后一屏底边流光', hint: '白色流动边缘' },
+  { path: 'iridescence.enabled', label: '亮色主题虹彩背景', hint: 'Iridescence，仅浅灰配色生效' },
 ];
 
 /** 按 'a.b.c' 取值 */
